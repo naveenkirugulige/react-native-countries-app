@@ -6,6 +6,8 @@ import countriesAction from '../actions/countries'
 import CountryListItem from "./CountryListItem";
 
 
+
+
 class SearchCountries extends Component {
 
     ChangeTextOnInput(text) {
@@ -20,16 +22,14 @@ class SearchCountries extends Component {
 
         };
     }
+
     searchCountries = () => {
 
         this.props.dispatch(countriesAction.getCountriesAction(this.props.input))
     }
-    render() {
 
-        const { search } = this.state;
-
+    renderItemPresent() {
         return (
-
             < View >
                 <View style={styles.Container}>
 
@@ -56,8 +56,8 @@ class SearchCountries extends Component {
                     <FlatList
                         data={this.props.countries}
                         extraData={this.props}
-                        renderItem={({ item }) => <CountryListItem countries={item} navigation={this.props.navigation} />}
-                        keyExtractor={(item, index) => `${index}`
+                        renderItem={({ item }) => <CountryListItem countryName={item.name} countryFlag={item.flag} navigation={this.props.navigation} />}
+                        keyExtractor={(item) => `${item.numericCode}`
 
                         }
 
@@ -69,9 +69,51 @@ class SearchCountries extends Component {
 
                 </View>
             </View >
-
-
         );
+
+    }
+
+    renderItemNotPresent() {
+        return (
+            <View>
+                <View style={styles.Container}>
+
+                    <TextInput
+                        style={styles.TextInput}
+                        vlaue={this.props.input}
+                        placeholder='Enter Country Name'
+                        onChangeText={this.ChangeTextOnInput.bind(this)}
+
+                    />
+
+                    <Button
+
+
+                        title="Search"
+                        color="#a8abaf"
+                        accessibilityLabel="Learn more about this purple button"
+                        onPress={this.searchCountries}
+                    />
+
+
+
+                </View>
+                <Text> Country Name not found</Text>
+            </View>
+        );
+
+    }
+
+
+    render() {
+        console.log(this.props.countryExists)
+        if (this.props.countryExists)
+            return (
+                this.renderItemPresent()
+            );
+
+        else return (this.renderItemNotPresent());
+
     }
 }
 const styles = StyleSheet.create({
@@ -81,7 +123,7 @@ const styles = StyleSheet.create({
     },
     TextInput: {
 
-        width: '70%',
+        width: '75%',
 
         borderColor: '#000000',
         borderWidth: 1,
@@ -97,7 +139,8 @@ function mapStateToProps(state) {
     return {
         countries: state.countries,
         isLoading: state.isLoading,
-        input: state.input
+        input: state.input,
+        countryExists: state.countryExists
     }
 }
 export default connect(mapStateToProps)(SearchCountries)
